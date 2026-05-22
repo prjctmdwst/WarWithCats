@@ -1,0 +1,4 @@
+; Append this to your project.godot [autoload] section:
+
+; [autoload]
+; GameState="*res://scripts/GameState.gd"

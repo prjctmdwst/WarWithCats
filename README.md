@@ -1,80 +1,146 @@
-# War With Cats 🐱⚔️
+# ⚔ War Roguelike — Godot 4.x Starter Project
 
-A roguelike deck-building card game with feline chaos and strategic depth. Built in **Godot** with fully seeded runs like Balatro.
+A roguelike card game built on the rules of War, with special card abilities,
+persistent run upgrades, and escalating boss encounters.
 
-## Overview
+---
 
-War With Cats is a turn-based roguelike where you battle an endless army of cats using a deck of cards you construct throughout your run. Combine powerful synergies, discover rare artifacts, and unlock new strategies to defeat increasingly difficult feline opponents.
+## Quick Setup (5 minutes)
 
-Every run is seeded, meaning you can share seeds with friends for identical gameplay experiences, or chase high scores on the same randomly-generated battlefield.
+1. **Open Godot 4.x** and choose "Import" → select the `project.godot` file.
 
-## Features
+2. **Register the Autoload**
+   - Go to `Project → Project Settings → Autoload`
+   - Click the folder icon, select `res://scripts/GameState.gd`
+   - Set the Node Name to `GameState`
+   - Click **Add**
 
-- **Seeded Roguelike Runs** — Play the same seed for consistent replayability, or generate endless unique runs
-- **Deck-Building Gameplay** — Collect and synergize cards to create powerful combos
-- **Feline Art & Aesthetics** — Unique cat-themed visuals and enemy designs throughout
-- **Strategic Depth** — Manage resources, plan ahead, and adapt to RNG for victory
-- **Progressive Difficulty** — Face tougher cats with more complex mechanics as you advance
+3. **Set the Main Scene**
+   - Go to `Project → Project Settings → Application → Run`
+   - Set `Main Scene` to `res://scenes/Main.tscn`
+
+4. **Hit F5** — the game runs!
+
+---
+
+## Project Structure
+
+```
+war_roguelike/
+├── project.godot
+├── scripts/
+│   ├── Card.gd           # Card data: values, suits, abilities
+│   ├── Deck.gd           # Deck management: draw, shuffle, build
+│   ├── GameState.gd      # AUTOLOAD — run state, upgrades, HP
+│   ├── BattleManager.gd  # Core War game logic + ability resolution
+│   ├── BattleScene.gd    # Battle UI controller
+│   ├── CardVisual.gd     # Card display component
+│   ├── UpgradeScreen.gd  # Post-battle upgrade picker
+│   ├── UpgradeCard.gd    # Individual upgrade card UI
+│   ├── MainMenu.gd       # Title screen
+│   ├── GameOver.gd       # Death screen
+│   └── Victory.gd        # Win screen
+└── scenes/
+    ├── Main.tscn          # Main menu
+    ├── Battle.tscn        # Core gameplay
+    ├── CardVisual.tscn    # Reusable card component
+    ├── UpgradeScreen.tscn # Post-battle upgrade
+    ├── UpgradeCard.tscn   # Upgrade option card
+    ├── GameOver.tscn      # Death screen
+    └── Victory.tscn       # Win screen
+```
+
+---
 
 ## How to Play
 
-1. **Build Your Deck** — Start with basic cards and recruit new ones after each battle
-2. **Battle Cats** — Deploy your cards strategically to defeat cat opponents
-3. **Collect Synergies** — Discover powerful card combinations and artifacts
-4. **Climb the Ranks** — Defeat progressively stronger feline enemies
-5. **Chase Your Best Run** — Beat your high score or share seeds for friendly competition
+- **Goal**: Survive 10 floors by winning card battles against enemies.
+- **Each Round**: Both players flip the top card of their deck. Higher value wins both cards.
+- **WAR**: On a tie, 3 face-down cards are staked, then one more decides the winner.
+- **Battle ends** when a player runs out of cards. Winner takes all winnings.
+- **Lose HP** when you lose a battle. Reach 0 HP → Game Over.
+- **Between floors**: Choose 1 of 3 upgrade options to power up your deck.
 
-## Technology
+---
 
-- **Engine:** Godot
-- **Gameplay:** Turn-based card mechanics with seeded randomization
-- **Art Direction:** Cat-focused visual theme with roguelike aesthetics
+## Special Card Abilities
 
-## Getting Started
+| Ability       | Effect |
+|---------------|--------|
+| **Shield**    | Block the next loss this battle |
+| **Double Down** | Win? Collect 2× the cards |
+| **Poison**    | Opponent discards a won card |
+| **Resurrect** | Lose? Choose to flip again |
+| **Drain**     | On win, steal 1 card from enemy's deck |
+| **Mirror**    | Copies the opponent's card value |
+| **Bomb**      | Both played cards are destroyed |
+| **Gold**      | Worth double in final score tiebreaks |
 
-### Prerequisites
-- Godot (version X.X or later)
+Ability cards are added to your deck via Upgrades between floors.
 
-### Running Locally
+---
 
-```bash
-git clone https://github.com/prjctmdwst/WarWithCats.git
-cd WarWithCats
-# Open project in Godot editor
-godot --path .
+## Upgrades (Roguelike Progression)
+
+| Upgrade         | Effect |
+|-----------------|--------|
+| **Ace High**    | Aces count as 15 (max once) |
+| **War Veteran** | Auto-win WAR ties |
+| **Lucky Draw**  | Add 3 random ability cards post-battle (stackable) |
+| **Card Cull**   | Remove your 3 weakest cards at battle start (stackable) |
+| **Resilience**  | +1 max HP, restore 1 HP (up to 2×) |
+| **Double Trouble** | Add 3 Double Down cards (stackable) |
+| **Poison Ivy**  | Add 3 Poison cards (stackable) |
+| **Mirror Shield** | Add 2 Mirror + 2 Shield cards (stackable) |
+
+---
+
+## Boss Floors
+
+Every 5th floor is a **Boss Battle**:
+- Enemy deck is 30 cards, biased toward high values (7–14)
+- 30–45% of boss cards have abilities
+- Boss difficulty scales with floor depth
+
+---
+
+## Extending the Game
+
+**Add a new ability:**
+1. Add entry to `Card.Ability` enum in `Card.gd`
+2. Add name/description to the dicts in `Card.gd`
+3. Handle the effect in `BattleManager._resolve_player_win()` or `_resolve_enemy_win()`
+
+**Add a new upgrade:**
+1. Add entry to `GameState.ALL_UPGRADES`
+2. Handle the effect in `GameState._apply_upgrade_effect()`
+
+**Add a new floor event (random events):**
+1. Create a new scene (e.g. `EventScene.tscn`)
+2. In `UpgradeScreen._proceed()`, randomly route to the event scene before Battle
+
+---
+
+## Architecture Notes
+
+- `GameState` (autoload) persists across scenes — it's the single source of truth.
+- `BattleManager` is pure logic — no UI. `BattleScene` wires signals to visuals.
+- `Deck.duplicate_deep_ish()` is called in `BattleScene` — implement this as
+  a copy of the cards array so the original `GameState.player_deck` isn't mutated
+  mid-battle (only winnings are merged back at battle end).
+
+### Implementing `duplicate_deep_ish()` on Deck:
+Add this method to `Deck.gd`:
+
+```gdscript
+func duplicate_deep_ish() -> Deck:
+    var d = Deck.new()
+    for c in cards:
+        var copy = Card.new()
+        copy.value = c.value
+        copy.suit = c.suit
+        copy.ability = c.ability
+        copy.is_boss_card = c.is_boss_card
+        d.cards.append(copy)
+    return d
 ```
-
-### Building
-
-Export builds are available through the Godot export templates. See the `export_presets.cfg` file for details.
-
-## Contributing
-
-Contributions are welcome! Feel free to submit issues for bugs or feature requests, or open a pull request with improvements.
-
-## License
-
-[Add your license here]
-
-CHANGELOG V0.21
-New file — SeedManager.gd (Autoload)
-
-Balatro-style seeded RNG with cat-word seeds like PAWSZOOMIES4721
-Separate sub-RNGs for deck shuffles, enemy generation, upgrades, and events — so each system is isolated and runs are fully reproducible from any seed
-
-Updated MainMenu.gd
-
-Seed input field on the title screen — type any seed or hit 🎲 for a random one
-Displays the active seed string + numeric ID so you can share runs with friends
-
-Updated Card.gd
-
-Suits renamed: Paws 🐾, Claws 🐱, Whiskers 😸, Tails 🐈
-Abilities renamed: Shield → Fur Coat, Double → Nine Lives x2, Poison → Hairball, Resurrect → Nine Lives, Drain → Kitten Tax, Mirror → Copycat, Bomb → Catnip Bomb, Gold → Golden Paw
-Face cards get flavour text (Jester Cat, Queen Cat, King Cat, Ace Cat)
-
-Updated Deck.gd — all randi()/randf() calls replaced with SeedManager.deck_randi() etc., plus duplicate_deep_ish() is now built in
-Updated GameState.gd — upgrades are cat-themed (e.g. Apex Predator, Battle-Scarred, Lucky Litter, Darwin's Claws), upgrade shuffle uses seeded RNG
-Updated BattleManager.gd — ability log messages use cat-flavored text, enemy RNG uses SeedManager.enemy_randi()
-
-**Ready to wage war? Pick your seed and clash with cats!** 🐾
