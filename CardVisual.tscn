@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://card_visual"]
+
+[ext_resource type="Script" path="res://scripts/CardVisual.gd" id="1"]
+
+[node name="CardVisual" type="PanelContainer"]
+custom_minimum_size = Vector2(120, 180)
+script = ExtResource("1")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ValueLabel" type="Label" parent="VBox"]
+name = "ValueLabel"
+text = "?"
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+
+[node name="SuitLabel" type="Label" parent="VBox"]
+name = "SuitLabel"
+text = "♠"
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+
+[node name="AbilityLabel" type="Label" parent="VBox"]
+name = "AbilityLabel"
+text = ""
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.2, 0.3, 0.9, 1)
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="AbilityDesc" type="Label" parent="VBox"]
+name = "AbilityDesc"
+text = ""
+theme_override_font_sizes/font_size = 9
+theme_override_colors/font_color = Color(0.4, 0.4, 0.5, 1)
+horizontal_alignment = 1
+autowrap_mode = 3
